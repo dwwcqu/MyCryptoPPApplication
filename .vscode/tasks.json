@@ -8,10 +8,11 @@
 			"args": [
 				"-fdiagnostics-color=always",
 				"-g",
-				"-lcryptopp",
-				"${file}",
 				"-o",
-				"${fileDirname}/${fileBasenameNoExtension}"
+				"${fileDirname}/${fileBasenameNoExtension}",
+				"${file}",
+				"-L/usr/local/lib",
+				"-lcryptopp"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
