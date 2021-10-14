@@ -25,6 +25,17 @@
 				"isDefault": true
 			},
 			"detail": "编译器: /usr/bin/g++"
+		},
+		{
+			"label": "C/C++: g++ 生成目标文件",
+			"command": "/usr/bin/g++",
+			"args": [
+				"src/*.cpp",
+				"-o",
+				"obj/*.obj",
+				"-L/usr/local/lib",
+				"-lcryptopp"
+			]
 		}
 	]
 }

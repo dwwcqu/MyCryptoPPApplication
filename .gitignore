@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# main.dSYM and .exe
+main.dSYM
+main
