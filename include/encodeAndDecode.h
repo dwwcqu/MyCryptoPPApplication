@@ -23,10 +23,11 @@ using std::runtime_error;
 //即实现对公私钥的 Save 和 Load(保存和加载)
 void Save(const string& filename, const BufferedTransformation& bt);
 void SavePublicKey(const string& filename, const PublicKey& key);
+void SavePrivateKey(const string& filename, const PrivateKey& key);
 
 void Load(const string& filename, BufferedTransformation& bt);
 void LoadPublicKey(const string& filename, PublicKey& key);
-
+void LoadPublicKey(const string& filename, PrivateKey& key);
 
 
 //使用 DEREncodePublicKey 和 DEREncodePrivateKey 实现对公私钥的 Encode (编码)
@@ -48,17 +49,17 @@ void SaveHexPrivateKey(const string& filename, const PrivateKey& key);
 void SaveHexPublicKey(const string& filename, const PublicKey& key);
 void SaveHex(const string& filename, const BufferedTransformation& bt);
 
-void LoadHexPrivateKey(const string& filename,const PrivateKey& key);
-void LoadHexPublicKey(const string& filename,const PublicKey& key);
-void LoadHex(const string& filename,const BufferedTransformation& bt);
+void LoadHexPrivateKey(const string& filename,PrivateKey& key);
+void LoadHexPublicKey(const string& filename,PublicKey& key);
+void LoadHex(const string& filename,BufferedTransformation& bt);
 
 //使用 Base64Encoder 和 Base64Decoder 对公私钥进行编码(Encode/Decode)
 void SaveBase64PrivateKey(const string& filename, const PrivateKey& key);
 void SaveBase64PublicKey(const string& filename, const PublicKey& key);
 void SaveBase64(const string& filename, const BufferedTransformation& bt);
 
-void LoadBase64PrivateKey(const string& filename,const PrivateKey& key);
-void LoadBase64PublicKey(const string& filename,const PublicKey& key);
-void LoadBase64(const string& filename,const BufferedTransformation& bt);
+void LoadBase64PrivateKey(const string& filename,PrivateKey& key);
+void LoadBase64PublicKey(const string& filename,PublicKey& key);
+void LoadBase64(const string& filename,BufferedTransformation& bt);
 
 #endif
