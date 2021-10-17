@@ -117,9 +117,114 @@ void test2(){
     }
 }
 
+//X25519：进行密钥协商算法(建立在椭圆曲线上的密钥协商算法)
+void test3(){
 
+    AutoSeededRandomPool rndA, rndB;
+    x25519 ecdhA(rndA), ecdhB(rndB);
+
+    //////////////////////////////////////////////////////////////
+
+    SecByteBlock privA(ecdhA.PrivateKeyLength());
+    SecByteBlock pubA(ecdhA.PublicKeyLength());
+    ecdhA.GenerateKeyPair(rndA, privA, pubA);
+
+    SecByteBlock privB(ecdhB.PrivateKeyLength());
+    SecByteBlock pubB(ecdhB.PublicKeyLength());
+    ecdhB.GenerateKeyPair(rndB, privB, pubB);
+
+    //////////////////////////////////////////////////////////////
+
+    SecByteBlock sharedA(ecdhA.AgreedValueLength());
+    SecByteBlock sharedB(ecdhB.AgreedValueLength());
+
+    if(ecdhA.AgreedValueLength() != ecdhB.AgreedValueLength())
+        throw std::runtime_error("Shared secret size mismatch");
+
+    if(!ecdhA.Agree(sharedA, privA, pubB))
+        throw std::runtime_error("Failed to reach shared secret (1)");
+
+    if(!ecdhB.Agree(sharedB, privB, pubA))
+        throw std::runtime_error("Failed to reach shared secret (2)");
+
+    size_t len = std::min(ecdhA.AgreedValueLength(), ecdhB.AgreedValueLength());
+    //验证生成的两个共享密钥是否相同
+    //使用方法 VerifyBufEqual
+    if(!len || !VerifyBufsEqual(sharedA.BytePtr(), sharedB.BytePtr(), len))
+        throw std::runtime_error("Failed to reach shared secret (3)");
+    
+    //////////////////////////////////////////////////////////////
+    
+    HexEncoder encoder(new FileSink(std::cout));
+    
+    std::cout << "Shared secret (A): ";
+    StringSource(sharedA, sharedA.size(), true, new Redirector(encoder));
+    std::cout << std::endl;
+
+    std::cout << "Shared secret (B): ";
+    StringSource(sharedB, sharedB.size(), true, new Redirector(encoder));
+    std::cout << std::endl;
+}
+
+
+void test4(){
+    OID CURVE = ASN1::secp256r1();
+    AutoSeededRandomPool rng;
+
+    ECDH < ECP >::Domain dhA( CURVE ), dhB( CURVE );
+    SecByteBlock privA(dhA.PrivateKeyLength()), pubA(dhA.PublicKeyLength());
+    SecByteBlock privB(dhB.PrivateKeyLength()), pubB(dhB.PublicKeyLength());
+
+    //根据两个有限域上的参数生成两对公私钥
+    dhA.GenerateKeyPair(rng, privA, pubA);
+    dhB.GenerateKeyPair(rng, privB, pubB);
+
+    //确保两个域上的 agreed 密钥长度一样
+    if(dhA.AgreedValueLength() != dhB.AgreedValueLength())
+        throw runtime_error("Shared shared size mismatch");
+
+    SecByteBlock sharedA(dhA.AgreedValueLength()), sharedB(dhB.AgreedValueLength());
+    //根据A的私钥和B的公钥生成sharedA
+    if(!dhA.Agree(sharedA, privA, pubB))
+        throw runtime_error("Failed to reach shared secret (A)");
+    //根据B的私钥和A的公钥生成sharedB
+    if(!dhB.Agree(sharedB, privB, pubA))
+        throw runtime_error("Failed to reach shared secret (B)");
+
+    Integer ssa, ssb;
+
+    ssa.Decode(sharedA.BytePtr(), sharedA.SizeInBytes());
+    cout << "(A): " << std::hex << ssa << endl;
+
+    ssb.Decode(sharedB.BytePtr(), sharedB.SizeInBytes());
+    cout << "(B): " << std::hex << ssb << endl;
+    //sharedA 一定得等于 sharedB，否则 agree 过程失败
+    if(ssa != ssb)
+        throw runtime_error("Failed to reach shared secret (C)");
+
+    cout << "Agreed to shared secret" << endl;
+}
+
+
+void test5(){
+    AutoSeededRandomPool prng;
+    ECDSA<ECP, SHA1>::PrivateKey k1;
+    k1.Initialize( prng, ASN1::secp256k1() );
+
+    const Integer& x1 = k1.GetPrivateExponent();
+    std::cout << "K1: " << std::hex << x1 << std::endl;
+
+    ByteQueue queue;
+    k1.Save(queue);
+
+    ECDSA<ECP, SHA256>::PrivateKey k2;
+    k2.Load(queue);
+
+    const Integer& x2 = k2.GetPrivateExponent();
+    std::cout << "K2: " << std::hex << x2 << std::endl;
+}
+//椭圆曲线密码系统：
 int main(){
-    AutoSeededRandomPool rnd;
-    test2();
+    test5();
     return 0;
 }
